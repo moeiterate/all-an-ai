@@ -16,10 +16,10 @@
   - [ ] Verify audio quality
   - [ ] Check response latency
   - [ ] Tune as needed
-- [ ] Create repo and commit initial files
-  - Initialize git repository
-  - Commit scaffolded files
-  - Push to GitHub
+- [x] Create repo and commit initial files
+  - [x] Initialize git repository
+  - [x] Commit scaffolded files
+  - [x] Push to GitHub (public, shared with Ahmad)
 
 ## Ahmad's Handoff Items
 

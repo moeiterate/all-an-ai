@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AiDial — Prank Your Friends with AI Phone Calls</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: #0f1923;
+            color: #e8e8e8;
+            min-height: 100vh;
+        }
+
+        /* ── NAV BAR ── */
+        nav {
+            background: linear-gradient(135deg, #1a2a3a 0%, #0f1923 100%);
+            border-bottom: 3px solid #00e676;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+        .logo .ai { color: #00e676; }
+        .logo .dial { color: #fff; }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+        .nav-links a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: #00e676; }
+
+        .nav-badge {
+            background: #00e676;
+            color: #0f1923;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-weight: 900;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .nav-badge:hover { background: #69f0ae; }
+
+        /* ── HERO ── */
+        .hero {
+            text-align: center;
+            padding: 5rem 1.5rem 3rem;
+            background: radial-gradient(ellipse at center top, #1a3a2a 0%, #0f1923 60%);
+        }
+
+        .hero h1 {
+            font-size: clamp(2.4rem, 6vw, 4rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+        }
+        .hero h1 .green { color: #00e676; }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: #999;
+            max-width: 520px;
+            margin: 0 auto 1.5rem;
+            line-height: 1.6;
+        }
+
+        .hero-sub {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        /* ── HOW IT WORKS ── */
+        .how {
+            padding: 4rem 1.5rem;
+            text-align: center;
+        }
+        .how h2 {
+            font-size: 1.6rem;
+            font-weight: 900;
+            margin-bottom: 2.5rem;
+            color: #fff;
+        }
+        .steps {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .step {
+            flex: 1 1 200px;
+            max-width: 220px;
+        }
+        .step-num {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #00e676;
+            color: #0f1923;
+            font-weight: 900;
+            font-size: 1.2rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+        }
+        .step h3 {
+            font-size: 1rem;
+            margin-bottom: 0.4rem;
+        }
+        .step p {
+            font-size: 0.85rem;
+            color: #777;
+            line-height: 1.5;
+        }
+
+        /* ── CHARACTER GRID ── */
+        .characters {
+            padding: 4rem 1.5rem;
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        .characters h2 {
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+        .characters .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 2.5rem;
+            font-size: 0.95rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: #1a2a3a;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+        }
+
+        .card-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            background: linear-gradient(135deg, #1e3a2f, #1a2a3a);
+        }
+
+        .card-body {
+            padding: 1.25rem;
+        }
+        .card-body h3 {
+            font-size: 1.1rem;
+            font-weight: 900;
+            margin-bottom: 0.3rem;
+        }
+        .card-body .tagline {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .card-cta {
+            display: inline-block;
+            background: #00e676;
+            color: #0f1923;
+            font-weight: 900;
+            font-size: 0.85rem;
+            padding: 0.55rem 1.4rem;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .card-cta:hover { background: #69f0ae; }
+
+        .badge-live {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #00e676;
+            color: #0f1923;
+            font-size: 0.7rem;
+            font-weight: 900;
+            padding: 0.25rem 0.65rem;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-soon {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #444;
+            color: #aaa;
+            font-size: 0.7rem;
+            font-weight: 900;
+            padding: 0.25rem 0.65rem;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .card.disabled .card-img {
+            filter: grayscale(1);
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            border-top: 1px solid #1a2a3a;
+            color: #444;
+            font-size: 0.8rem;
+        }
+        footer a { color: #00e676; text-decoration: none; }
+
+        /* ── MOBILE ── */
+        @media (max-width: 600px) {
+            nav { padding: 0 1rem; }
+            .nav-links { display: none; }
+            .hero { padding: 3.5rem 1rem 2rem; }
+            .steps { gap: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAV -->
+    <nav>
+        <div class="logo"><span class="ai">Ai</span><span class="dial">Dial</span></div>
+        <ul class="nav-links">
+            <li><a href="#characters">Characters</a></li>
+            <li><a href="#how">How It Works</a></li>
+        </ul>
+        <a href="tel:+15206543136" class="nav-badge">Call Now</a>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <h1>Prank calls,<br>powered by <span class="green">AI</span></h1>
+        <p>Pick a character. Dial the number. An AI agent picks up and plays the part. It's like talking to a real person — except it's not.</p>
+        <p class="hero-sub">Free to call &middot; No app needed &middot; Just dial</p>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how" id="how">
+        <h2>How It Works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <h3>Pick a Character</h3>
+                <p>Browse our lineup of AI personalities below.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <h3>Dial the Number</h3>
+                <p>Call from any phone. No app, no signup.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <h3>Have Fun</h3>
+                <p>The AI stays in character the whole call. Try to break it.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CHARACTERS -->
+    <section class="characters" id="characters">
+        <h2>Choose Your Character</h2>
+        <p class="subtitle">One live now. More dropping soon.</p>
+
+        <div class="grid">
+
+            <!-- LIVE: Car Mechanic -->
+            <div class="card">
+                <span class="badge-live">Live</span>
+                <div class="card-img">🔧</div>
+                <div class="card-body">
+                    <h3>The Car Mechanic</h3>
+                    <p class="tagline">A calm, knowledgeable mechanic ready to diagnose your "car trouble." Tell him your engine's making noises — he'll take it seriously.</p>
+                    <a href="tel:+15206543136" class="card-cta">Call (520) 654-3136</a>
+                </div>
+            </div>
+
+            <!-- COMING SOON -->
+            <div class="card disabled">
+                <span class="badge-soon">Soon</span>
+                <div class="card-img">👵</div>
+                <div class="card-body">
+                    <h3>Suspicious Grandma</h3>
+                    <p class="tagline">She doesn't trust you and she's not afraid to say it. Every answer leads to more questions.</p>
+                    <span class="card-cta" style="background:#333;color:#666;cursor:default;">Coming Soon</span>
+                </div>
+            </div>
+
+            <div class="card disabled">
+                <span class="badge-soon">Soon</span>
+                <div class="card-img">👨‍💼</div>
+                <div class="card-body">
+                    <h3>Corporate HR Rep</h3>
+                    <p class="tagline">You're being called in for a "routine performance review." Nothing to worry about. Probably.</p>
+                    <span class="card-cta" style="background:#333;color:#666;cursor:default;">Coming Soon</span>
+                </div>
+            </div>
+
+            <div class="card disabled">
+                <span class="badge-soon">Soon</span>
+                <div class="card-img">🍕</div>
+                <div class="card-body">
+                    <h3>Confused Pizza Guy</h3>
+                    <p class="tagline">He's sure you ordered 47 pizzas. He's already on his way. Good luck canceling.</p>
+                    <span class="card-cta" style="background:#333;color:#666;cursor:default;">Coming Soon</span>
+                </div>
+            </div>
+
+            <div class="card disabled">
+                <span class="badge-soon">Soon</span>
+                <div class="card-img">👻</div>
+                <div class="card-body">
+                    <h3>Paranormal Investigator</h3>
+                    <p class="tagline">He got your number from "the other side." He has some urgent messages from beyond.</p>
+                    <span class="card-cta" style="background:#333;color:#666;cursor:default;">Coming Soon</span>
+                </div>
+            </div>
+
+            <div class="card disabled">
+                <span class="badge-soon">Soon</span>
+                <div class="card-img">🏠</div>
+                <div class="card-body">
+                    <h3>Overeager Realtor</h3>
+                    <p class="tagline">He found your dream home and the open house is in 20 minutes. He's not taking no for an answer.</p>
+                    <span class="card-cta" style="background:#333;color:#666;cursor:default;">Coming Soon</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>AiDial &middot; AI-powered prank calls &middot; Built by <a href="https://rethreadmarketing.netlify.app/" target="_blank">ReThread Research Lab</a></p>
+        <p style="margin-top:0.5rem;">Don't be evil. Use responsibly. All calls are with an AI, not real people.</p>
+    </footer>
+
+</body>
+</html>
