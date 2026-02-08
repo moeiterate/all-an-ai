@@ -1,0 +1,10 @@
+Fleetio ID,Name,System of Measurement,Fuel Volume Unit,VIN/SN,License Plate,Status,Current Meter,Current Meter Unit,Year,Make,Model,Battery Voltage (volts),Engine Coolant Temp (°F),Engine Oil Pressure (PSI),Engine Oil Temp (°F),Front Left Tire Pressure (PSI),Front Right Tire Pressure (PSI),Fuel Level (%),Ignition Status,Rear Left Tire Pressure (PSI),Rear Right Tire Pressure (PSI),Engine Size,Engine Summary
+325797,121,Imperial,Gallons (US),1FBZX2ZM1FKB10139,J6A0FX,Active,547183.0,mi,2015,Ford,Transit Wagon,,,,,,,,,,,"",3.7L Flex Fuel V6 275hp 260ft. lbs.
+2171635,131,Imperial,Gallons (US),1FBZX2ZM2GKB27825,JJA2GX,Active,337808.0,mi,2016,Ford,Transit Passenger,12.0351095199585,174.200,,,68.458,67.298,82.73310000000001,off,71.939,67.878,"",3.7L V6 275hp 260ft. lbs.
+2345517,133,Imperial,Gallons (US),1FBZX2YM8JKA97142,JHA8FX,Active,408612.0,mi,2018,Ford,Transit,12.42866516113281,170.600,,,68.458,67.298,53.7177,off,65.557,68.458,"",3.7L V6 275hp 260ft. lbs.
+2483855,134,Imperial,Gallons (US),1FBZX2YM7KKB16359,JCA6GX,Active,368294.0,mi,2019,Ford,Transit,12.53599834442139,210.200,,,68.458,67.878,99.9855,off,70.198,70.198,"",3.7L V6 275hp 260ft. lbs.
+2850709,135,Imperial,Gallons (US),1FBZX2YM7KKA06198,AGA08R,Active,367300.0,mi,2019,Ford,Transit,12.46444320678711,188.600,,,76.000,74.259,89.0067,off,77.160,74.840,"",3.7L V6 275hp 260ft. lbs.
+3801903,137,Imperial,Gallons (US),1FBZX2YM1HKB05012,6JA8BZ,Active,194400.0,mi,2017,Ford,Transit,12.57177639007568,197.600,,,77.740,77.160,52.1493,off,75.420,77.160,"",3.7L V6 275hp 260ft. lbs.
+4117477,138,Imperial,Gallons (US),1FBZX2ZM5KKB55336,MFA951,Active,200755.0,mi,2019,Ford,Transit,,,,,,,,,,,"",3.7L V6 275hp 260ft. lbs.
+4170508,139,Imperial,Gallons (US),1FBZX2YM1JKA57856,DHA7J2,Active,139549.0,mi,2018,Ford,Transit,,,,,,,,,,,"",3.7L V6 275hp 260ft. lbs.
+4470133,140,Imperial,Gallons (US),1FBZX2ZM1JKB20260,0XA8Z3,Active,131599.0,mi,2018,Ford,Transit,,,,,,,,,,,"",3.7L V6 275hp 260ft. lbs.
