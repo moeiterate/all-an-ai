@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceLine — After-Hours Reservation &amp; Status Line for Transportation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: #0f1923;
+            color: #e8e8e8;
+            min-height: 100vh;
+        }
+
+        nav {
+            background: linear-gradient(135deg, #1a2a3a 0%, #0f1923 100%);
+            border-bottom: 3px solid #00e676;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+        .logo .voice { color: #00e676; }
+        .logo .line { color: #fff; }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+        .nav-links a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: #00e676; }
+
+        .nav-cta {
+            background: #00e676;
+            color: #0f1923;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-weight: 900;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .nav-cta:hover { background: #69f0ae; }
+
+        .hero {
+            text-align: center;
+            padding: 5rem 1.5rem 3rem;
+            background: radial-gradient(ellipse at center top, #1a3a2a 0%, #0f1923 60%);
+        }
+
+        .hero h1 {
+            font-size: clamp(2.4rem, 6vw, 4rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+        }
+        .hero h1 .green { color: #00e676; }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: #999;
+            max-width: 560px;
+            margin: 0 auto 1.5rem;
+            line-height: 1.6;
+        }
+
+        .hero-sub { margin-top: 1rem; font-size: 0.85rem; color: #555; }
+
+        .cta-row {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 900;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-primary {
+            background: #00e676;
+            color: #0f1923;
+        }
+        .btn-primary:hover { background: #69f0ae; }
+        .btn-secondary {
+            background: transparent;
+            color: #00e676;
+            border: 2px solid #00e676;
+        }
+        .btn-secondary:hover { background: rgba(0,230,118,0.1); }
+
+        .how {
+            padding: 4rem 1.5rem;
+            text-align: center;
+        }
+        .how h2 {
+            font-size: 1.6rem;
+            font-weight: 900;
+            margin-bottom: 2.5rem;
+            color: #fff;
+        }
+        .steps {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .step {
+            flex: 1 1 200px;
+            max-width: 220px;
+        }
+        .step-num {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #00e676;
+            color: #0f1923;
+            font-weight: 900;
+            font-size: 1.2rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+        }
+        .step h3 { font-size: 1rem; margin-bottom: 0.4rem; }
+        .step p { font-size: 0.85rem; color: #777; line-height: 1.5; }
+
+        .value {
+            padding: 4rem 1.5rem;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .value h2 {
+            font-size: 1.6rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .value ul {
+            list-style: none;
+            color: #999;
+            line-height: 1.8;
+        }
+        .value li::before { content: "✓ "; color: #00e676; font-weight: 900; }
+
+        footer {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            border-top: 1px solid #1a2a3a;
+            color: #444;
+            font-size: 0.8rem;
+        }
+        footer a { color: #00e676; text-decoration: none; }
+
+        @media (max-width: 600px) {
+            nav { padding: 0 1rem; }
+            .nav-links { display: none; }
+            .hero { padding: 3.5rem 1rem 2rem; }
+            .steps { gap: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo"><span class="voice">Voice</span><span class="line">Line</span></div>
+        <ul class="nav-links">
+            <li><a href="#how">How It Works</a></li>
+            <li><a href="#value">Why</a></li>
+        </ul>
+        <a href="#cta" class="nav-cta">Book a demo</a>
+    </nav>
+
+    <section class="hero">
+        <h1>After-hours reservation &amp; status line,<br>powered by <span class="green">voice AI</span></h1>
+        <p>For shuttle and transportation companies. Connect a voice agent to your booking system (e.g. Supabase) so callers get pickup times, confirmation, and answers 24/7.</p>
+        <p class="hero-sub">No more missed after-hours calls. No more "we're closed" when customers need their reservation.</p>
+        <div class="cta-row" id="cta">
+            <a href="#how" class="btn btn-primary">See how it works</a>
+            <a href="mailto:hello@voiceline.example.com?subject=Transport%20B2B%20demo" class="btn btn-secondary">Book a demo</a>
+        </div>
+    </section>
+
+    <section class="how" id="how">
+        <h2>How It Works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <h3>Your data</h3>
+                <p>We connect to your reservations (Supabase or your booking system).</p>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <h3>Voice agent</h3>
+                <p>Callers hear a professional AI that looks up by confirmation number or phone.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <h3>24/7 answers</h3>
+                <p>Pickup time, drop-off, flight info, status — without staff on the line.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="value" id="value">
+        <h2>Why transportation companies use us</h2>
+        <ul>
+            <li>After-hours callers get instant reservation and status answers instead of voicemail.</li>
+            <li>One voice line that works with your existing Supabase (or similar) data.</li>
+            <li>Fewer missed bookings and fewer "where’s my ride?" calls during business hours.</li>
+        </ul>
+    </section>
+
+    <footer>
+        <p>VoiceLine &middot; After-hours reservation voice AI for transportation</p>
+        <p style="margin-top:0.5rem;">Replace the generic "Get a callback" with a link to this page in your cold outreach.</p>
+    </footer>
+
+</body>
+</html>
