@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VoiceLine — Operator Import</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; padding: 1.5rem; }
+    h1 { font-size: 1.25rem; margin-bottom: 0.5rem; color: #00e676; }
+    h2 { font-size: 1rem; margin: 1.25rem 0 0.5rem; font-weight: 600; }
+    p { margin-bottom: 0.5rem; color: #bbb; font-size: 0.9rem; }
+    .card { background: #16213e; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+    label { display: block; margin-bottom: 0.25rem; font-size: 0.85rem; }
+    input[type="text"], input[type="password"] { width: 100%; max-width: 400px; padding: 0.5rem; border: 1px solid #0f3460; border-radius: 4px; background: #0f1923; color: #eee; margin-bottom: 0.75rem; }
+    input[type="file"] { margin: 0.5rem 0; font-size: 0.9rem; }
+    button { background: #00e676; color: #0f1923; border: none; padding: 0.5rem 1rem; border-radius: 4px; font-weight: 600; cursor: pointer; margin-right: 0.5rem; margin-top: 0.25rem; }
+    button:hover { background: #00c853; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .status { margin-top: 0.75rem; padding: 0.5rem; border-radius: 4px; font-size: 0.9rem; }
+    .status.success { background: #1b4332; color: #95d5b2; }
+    .status.error { background: #3d1a1a; color: #f4a6a6; }
+    .status.info { background: #1a3d3d; color: #a6f4f4; }
+    code { background: #0f1923; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.85em; }
+    ul { margin: 0.5rem 0 0 1rem; font-size: 0.9rem; color: #bbb; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Operator Import</h1>
+    <p>Upload reservation CSV (Phase 5) or driver list CSV. Requires API key.</p>
+    <label for="apiUrl">Import API URL</label>
+    <input type="text" id="apiUrl" placeholder="https://YOUR_PROJECT.supabase.co/functions/v1/import-upload">
+    <label for="apiKey">API Key (same as UPLOAD_API_KEY)</label>
+    <input type="password" id="apiKey" placeholder="Your upload API key">
+  </div>
+
+  <div class="card">
+    <h2>Last import</h2>
+    <p>Latest reservation import time and row count (used by the voice agent for “import fresh” check).</p>
+    <button type="button" id="btnRefresh">Refresh</button>
+    <div id="lastImport" class="status info">Click Refresh to load.</div>
+  </div>
+
+  <div class="card">
+    <h2>Upload reservations (CSV)</h2>
+    <p>Daily export from Hudson / Limo Anywhere. Import will be enabled in Phase 5.</p>
+    <input type="file" id="reservationFile" accept=".csv,.xlsx,.xls">
+    <button type="button" id="btnReservations">Upload reservations</button>
+    <div id="reservationResult" class="status" style="display:none;"></div>
+  </div>
+
+  <div class="card">
+    <h2>Upload driver list (CSV)</h2>
+    <p>Driver name and phone so the agent can transfer calls. Required columns: <code>name</code>, <code>phone</code>. Optional: <code>id</code>.</p>
+    <ul>
+      <li>name — driver name (must match reservation “Driver” column)</li>
+      <li>phone — driver phone number for transfer</li>
+      <li>id — optional; if omitted, generated from name</li>
+    </ul>
+    <input type="file" id="driversFile" accept=".csv">
+    <button type="button" id="btnDrivers">Upload drivers</button>
+    <div id="driversResult" class="status" style="display:none;"></div>
+  </div>
+
+  <script>
+    function getConfig() {
+      const url = (document.getElementById("apiUrl").value || "").trim();
+      const key = (document.getElementById("apiKey").value || "").trim();
+      return { url, key };
+    }
+
+    function showStatus(el, html, type) {
+      el.innerHTML = html;
+      el.className = "status " + (type || "info");
+      el.style.display = "block";
+    }
+
+    async function refreshLastImport() {
+      const { url, key } = getConfig();
+      const el = document.getElementById("lastImport");
+      if (!url || !key) {
+        showStatus(el, "Set API URL and API Key above, then click Refresh.", "info");
+        return;
+      }
+      try {
+        const r = await fetch(url, { method: "GET", headers: { "X-Import-API-Key": key } });
+        const data = await r.json();
+        if (!r.ok) {
+          showStatus(el, data.error || "Request failed.", "error");
+          return;
+        }
+        if (data.last_import_at == null) {
+          showStatus(el, "No import recorded yet.", "info");
+          return;
+        }
+        const at = new Date(data.last_import_at).toLocaleString();
+        showStatus(el, `Last import: <strong>${at}</strong> — ${data.row_count ?? "—"} rows${data.file_name ? ` (${data.file_name})` : ""}.`, "success");
+      } catch (e) {
+        showStatus(el, "Network error: " + e.message, "error");
+      }
+    }
+
+    async function uploadReservations() {
+      const { url, key } = getConfig();
+      const fileInput = document.getElementById("reservationFile");
+      const el = document.getElementById("reservationResult");
+      if (!url || !key) {
+        showStatus(el, "Set API URL and API Key first.", "error");
+        return;
+      }
+      const file = fileInput?.files?.[0];
+      if (!file) {
+        showStatus(el, "Choose a CSV file.", "error");
+        return;
+      }
+      const fd = new FormData();
+      fd.set("type", "reservations");
+      fd.set("file", file);
+      try {
+        const r = await fetch(url, { method: "POST", headers: { "X-Import-API-Key": key }, body: fd });
+        const data = await r.json();
+        if (!r.ok) {
+          showStatus(el, data.error || "Upload failed.", "error");
+          return;
+        }
+        showStatus(el, (data.message || "Done.") + (data.count != null ? " " + data.count + " row(s)." : ""), "success");
+        refreshLastImport();
+      } catch (e) {
+        showStatus(el, "Network error: " + e.message, "error");
+      }
+    }
+
+    async function uploadDrivers() {
+      const { url, key } = getConfig();
+      const fileInput = document.getElementById("driversFile");
+      const el = document.getElementById("driversResult");
+      if (!url || !key) {
+        showStatus(el, "Set API URL and API Key first.", "error");
+        return;
+      }
+      const file = fileInput?.files?.[0];
+      if (!file) {
+        showStatus(el, "Choose a CSV file.", "error");
+        return;
+      }
+      const fd = new FormData();
+      fd.set("type", "drivers");
+      fd.set("file", file);
+      try {
+        const r = await fetch(url, { method: "POST", headers: { "X-Import-API-Key": key }, body: fd });
+        const data = await r.json();
+        if (!r.ok) {
+          showStatus(el, (data.error || "Upload failed.") + (data.details ? " " + data.details : ""), "error");
+          return;
+        }
+        showStatus(el, (data.message || "Done.") + " " + (data.count != null ? data.count + " driver(s)." : ""), "success");
+      } catch (e) {
+        showStatus(el, "Network error: " + e.message, "error");
+      }
+    }
+
+    document.getElementById("btnRefresh").addEventListener("click", refreshLastImport);
+    document.getElementById("btnReservations").addEventListener("click", uploadReservations);
+    document.getElementById("btnDrivers").addEventListener("click", uploadDrivers);
+  </script>
+</body>
+</html>

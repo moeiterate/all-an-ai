@@ -93,6 +93,17 @@ The CSV/Excel upload feature will parse the operator’s export and upsert into 
 
 ---
 
+## 5a. Driver List vs. Reservation Upload (Two Data Surfaces)
+
+- **Driver name** is per-reservation: it comes from the daily reservation export (e.g. Hudson CSV “Driver” column) and is stored in `reservations.driver_assigned`.
+- **Driver phone** is **not** in the typical reservation export. It must be maintained separately: a **driver list** (name + phone) that the platform operator updates once or on an ongoing basis.
+- **Link:** The voice agent resolves transfer target by: `reservations.driver_assigned` → `drivers.name` (or `drivers.id`) → `drivers.phone`. So the front end must support:
+  1. **Reservation upload** — daily CSV/Excel → `reservations` (and `import_meta`).
+  2. **Driver list** — a way to maintain `drivers` (name, phone) so the agent can look up driver phone when a reservation has `driver_assigned` set.
+- Working hours / availability are not required for the agent; if a driver is assigned to a pickup, they are treated as working. Optimization (e.g. available_days) can be added later.
+
+---
+
 ## 6. Open Decisions
 
 | Decision | Options |
@@ -102,3 +113,12 @@ The CSV/Excel upload feature will parse the operator’s export and upsert into 
 | When to add “import fresh enough” guard | With first transfer build (recommended) vs. later |
 
 Once CSV/Excel import and transfer work, optional Hudson/Fleetio API can replace the manual export step without changing the voice flow or DB schema.
+
+---
+
+## 7. Operator Import and “Import Fresh”
+
+- **How to run import:** Use the operator upload page (`all-an-ai/landing/operator-import.html`) or POST to the `import-upload` Edge Function with your upload API key. See `docs/OPERATOR_IMPORT.md`.
+- **How often:** Upload reservations at least once per day (e.g. start of day) so the agent has current data. Driver list: when the roster or phone numbers change.
+- **What “import fresh” means:** The agent only offers transfer to the driver if the latest reservation import was within the last 24 hours. Older data: lookup and leave-a-message still work; transfer is disabled to avoid misrouting.
+- **Runbook:** One-page operator flow (export → upload → confirm) and env vars/URLs: `docs/OPERATOR_DAILY_RUNBOOK.md`.

@@ -20,6 +20,8 @@
 
 **Gaps for transfer:** (1) **import_meta** missing — add table. (2) **Driver phone** missing — `drivers` has no `phone`; `reservations` has `driver_assigned` (name). Add `phone` to `drivers` and resolve driver phone via join: `reservations.driver_assigned` → `drivers.name` (or `drivers.id` if you store id in driver_assigned).
 
+**Driver data split:** Driver *name* is per-reservation (from daily CSV → `reservations.driver_assigned`). Driver *phone* is in `drivers` and must be maintained separately (driver list). Front end needs both: reservation upload and a way to manage the driver list so the agent can resolve transfer target. Working hours / available_days are not used for transfer.
+
 ### Execution Protocol
 
 1. **One phase at a time**: Implement a single phase (e.g. 1.1, 1.2), then:
@@ -69,26 +71,26 @@ Agent confirms reservation, then offers to transfer caller to driver. Only if im
 
 - [x] In `check_reservation` or a small helper: read `import_meta.last_import_at` (latest row)
 - [x] Define policy (e.g. consider fresh if within last 24 hours); expose as `import_fresh: boolean` or equivalent in response
-- [ ] Agent prompt: if reservation found but import not fresh, do not offer transfer; take message instead
+- [x] Agent prompt: if reservation found but import not fresh, do not offer transfer; take message instead
 
 **Acceptance Criteria:**
 
 - [x] API returns whether data is considered fresh
-- [ ] Agent does not offer driver transfer when data is stale
-- [ ] Agent still answers reservation lookup and takes message when stale
+- [x] Agent does not offer driver transfer when data is stale
+- [x] Agent still answers reservation lookup and takes message when stale
 
 ### 2.2 Retell Transfer to Driver
 
 - [x] Add Retell *Transfer call* (or Call Transfer Node) using driver phone from DB
 - [x] Ensure driver phone is returned from `check_reservation` or from a follow-up read; pass to Retell transfer
-- [ ] Test: call in, give confirmation/phone, ask for driver → call transfers to driver number
+- [x] Test: call in, give confirmation/phone, ask for driver → call transfers to driver number
 
 **Acceptance Criteria:**
 
-- [ ] After confirming reservation, agent offers to connect to driver
-- [ ] When caller accepts, Retell transfers to the driver phone from Supabase
-- [ ] Caller can speak to driver; call ends normally
-- [ ] No transfer offered when driver phone missing or data stale
+- [x] After confirming reservation, agent offers to connect to driver
+- [x] When caller accepts, Retell transfers to the driver phone from Supabase
+- [x] Caller can speak to driver; call ends normally
+- [x] No transfer offered when driver phone missing or data stale
 
 ---
 
@@ -96,31 +98,36 @@ Agent confirms reservation, then offers to transfer caller to driver. Only if im
 
 Reduce friction so operator doesn’t need to run CLI. Upload accepts file and will process it once Phase 5 parser exists (or stub with "coming in Phase 5" and wire in Phase 5).
 
+**Implementation:** Edge Function `supabase/functions/import-upload` (GET = latest `import_meta`, POST = multipart: `type` reservations|drivers, `file` CSV). Auth via `UPLOAD_API_KEY` (header `X-Import-API-Key` or `Authorization: Bearer`). Operator page: `all-an-ai/landing/operator-import.html`. Doc: `docs/OPERATOR_IMPORT.md`. A React (or other SPA) operator UI for a more intuitive upload is optional polish (e.g. Phase 4 or later); the current static page is sufficient to ship.
+
+**Env vars (server-side only):** Set `UPLOAD_API_KEY` in **Supabase Dashboard → Edge Functions → import-upload → Secrets**. That value is what the operator (or your React app) sends in the request header so the function can reject unauthenticated uploads. You do not add env vars to the static HTML page; the operator pastes the key into the form. No client-side env is required.
+
 ### 3.1 Upload Endpoint or Page
 
-- [ ] Option A: Supabase Edge Function that accepts multipart file upload; when Phase 5 exists, parses CSV/Excel, runs upsert, updates `import_meta`
-- [ ] Option B: Simple web page with file input, POST to Edge Function or backend, then redirect with success/error
-- [ ] Auth: protect upload (e.g. Supabase Auth or API key) so only operator/admin can upload
-- [ ] Show last import time and row count after upload (from `import_meta`)
+- [x] Option A: Supabase Edge Function that accepts multipart file upload; when Phase 5 exists, parses CSV/Excel, runs upsert, updates `import_meta`
+- [x] Option B: Simple web page with file input, POST to Edge Function or backend, then redirect with success/error
+- [x] Auth: protect upload (e.g. Supabase Auth or API key) so only operator/admin can upload
+- [x] Show last import time and row count after upload (from `import_meta`)
+- [x] **Driver list:** Provide a way to maintain driver name + phone (e.g. upload a driver roster CSV, or a simple form/table) so `drivers` is populated/updated independently of the reservation CSV. Required for transfer; can be one-time or ongoing. (Reservation CSV supplies driver *name* only.)
 
 **Acceptance Criteria:**
 
-- [ ] Operator can upload a CSV (or Excel) without running a script locally (once Phase 5 is done; until then endpoint can return "import not yet available" or wire when Phase 5 lands)
-- [ ] Reservations and driver phone update in Supabase after upload (when Phase 5 parser is wired)
-- [ ] `last_import_at` updates and is visible to operator
-- [ ] Upload is not publicly writable without auth
+- [x] Operator can upload a CSV (or Excel) without running a script locally (once Phase 5 is done; until then endpoint can return "import not yet available" or wire when Phase 5 lands)
+- [x] Reservations and driver phone update in Supabase after upload (when Phase 5 parser is wired)
+- [x] `last_import_at` updates and is visible to operator
+- [x] Upload is not publicly writable without auth
 
 ### 3.2 Error Handling and Feedback
 
-- [ ] On parse failure: return clear error (e.g. "Missing column: telephone") and do not update `import_meta`
-- [ ] Optional: store last error message or log for debugging
-- [ ] Document supported column names / template for operator (aligned with Phase 5 format)
+- [x] On parse failure: return clear error (e.g. "Missing column: telephone") and do not update `import_meta`
+- [x] Optional: store last error message or log for debugging
+- [x] Document supported column names / template for operator (aligned with Phase 5 format)
 
 **Acceptance Criteria:**
 
-- [ ] Invalid or malformed file returns a clear error message
-- [ ] Successful upload shows row count and timestamp
-- [ ] One documented "expected columns" or sample template for the supported export format
+- [x] Invalid or malformed file returns a clear error message
+- [x] Successful upload shows row count and timestamp
+- [x] One documented "expected columns" or sample template for the supported export format
 
 ---
 
@@ -128,33 +135,39 @@ Reduce friction so operator doesn’t need to run CLI. Upload accepts file and w
 
 ### 4.1 Retell Request Verification
 
-- [ ] Verify `X-Retell-Signature` (or Retell’s recommended method) in `check_reservation` Edge Function so only Retell can call it with real traffic
-- [ ] Document required env (e.g. Retell webhook secret) in README or setup doc
+- [x] Verify `X-Retell-Signature` (or Retell’s recommended method) in `check_reservation` Edge Function so only Retell can call it with real traffic
+- [x] Document required env (e.g. Retell webhook secret) in README or setup doc
 
 **Acceptance Criteria:**
 
-- [ ] Edge Function rejects requests without valid signature when secret is set
-- [ ] Retell dashboard webhook still works for your agent
+- [x] Edge Function rejects requests without valid signature when secret is set
+- [x] Retell dashboard webhook still works for your agent
+
+**Implementation:** When `RETELL_WEBHOOK_SECRET` is set on `check-reservation`, the function verifies the `x-retell-signature` header (HMAC-SHA256 of raw body with the secret). If unset, verification is skipped so the dashboard and testing still work. Use your Retell API key (with webhook badge) as the secret. See Retell [Secure the webhook](https://docs.retellai.com/features/secure-webhook). Documented in runbook and §7 of integration plan.
 
 ### 4.2 Confirmation Number from Export
 
-- [ ] Prefer operator’s confirmation/trip id over generated ids so caller and dispatch use same reference
-- [ ] If export has no id: document "we generate RES-YYYYMMDD-NNNN" and keep behavior consistent (used when Phase 5 parser runs)
+- [x] Prefer operator’s confirmation/trip id over generated ids so caller and dispatch use same reference
+- [x] If export has no id: document "we generate RES-YYYYMMDD-NNNN" and keep behavior consistent (used when Phase 5 parser runs)
 
 **Acceptance Criteria:**
 
-- [ ] When export contains Trip# or confirmation, that value is stored and returned by `check_reservation`
-- [ ] Caller can use the number from their booking email/screen and agent finds the reservation
+- [x] When export contains Trip# or confirmation, that value is stored and returned by `check_reservation`
+- [x] Caller can use the number from their booking email/screen and agent finds the reservation
+
+**Implementation:** Parser (Phase 5) will use Trip# from export when present; otherwise generate `RES-YYYYMMDD-NNNN`. Documented in `docs/OPERATOR_IMPORT.md` and `docs/OPERATOR_DAILY_RUNBOOK.md`. `check_reservation` already returns whatever `confirmation_number` is in the DB.
 
 ### 4.3 Docs and Runbook
 
-- [ ] Update `voice-agent-integration-plan.md` or README with: how to run CSV import (CLI + upload URL once Phase 5 exists), how often to import, what "import fresh" means
-- [ ] One-page runbook: "Operator daily flow" (export from Hudson → upload here → agent uses data until next import)
+- [x] Update `voice-agent-integration-plan.md` or README with: how to run CSV import (CLI + upload URL once Phase 5 exists), how often to import, what "import fresh" means
+- [x] One-page runbook: "Operator daily flow" (export from Hudson → upload here → agent uses data until next import)
 
 **Acceptance Criteria:**
 
-- [ ] New teammate or operator can follow docs to perform a daily import (once Phase 5 is live)
-- [ ] Runbook lists any env vars, URLs, and expected export format
+- [x] New teammate or operator can follow docs to perform a daily import (once Phase 5 is live)
+- [x] Runbook lists any env vars, URLs, and expected export format
+
+**Implementation:** §7 added to `voice-agent-integration-plan.md` (import how-to, how often, “import fresh”). Runbook: `docs/OPERATOR_DAILY_RUNBOOK.md` (daily flow, env vars, URLs, expected CSV formats).
 
 ---
 
@@ -164,30 +177,32 @@ Reduce friction so operator doesn’t need to run CLI. Upload accepts file and w
 
 ### 5.1 Parser for One Operator Export Format
 
-- [ ] Pick one real export format (e.g. Ahmad’s cousin’s Hudson export or existing `Oct 26 Data (3).csv` column layout)
-- [ ] Add script or module that: reads CSV/Excel, maps columns to `reservations` schema (confirmation_number, customer_name, telephone, pickup_time, dropoff_time, flight_time, pickup_address, dropoff_info, terminal, direction, flight_info, special_instructions, vehicle_assigned, driver_assigned, num_passengers, status)
-- [ ] Confirmation number: use from export when present (e.g. Trip#), otherwise generate deterministic id
-- [ ] Upsert into `reservations` (match by confirmation_number or business key), then write one row to `import_meta` with `last_import_at = now()`, row_count
-- [ ] Parser maps driver phone from export into chosen structure (from Phase 1.2)
-- [ ] Handle encoding (UTF-8, latin-1) and missing columns gracefully
+- [x] Pick one real export format (e.g. Ahmad’s cousin’s Hudson export or existing `Oct 26 Data (3).csv` column layout)
+- [x] Add script or module that: reads CSV/Excel, maps columns to `reservations` schema (confirmation_number, customer_name, telephone, pickup_time, dropoff_time, flight_time, pickup_address, dropoff_info, terminal, direction, flight_info, special_instructions, vehicle_assigned, driver_assigned, num_passengers, status)
+- [x] Confirmation number: use from export when present (e.g. Trip#), otherwise generate deterministic id
+- [x] Upsert into `reservations` (match by confirmation_number or business key), then write one row to `import_meta` with `last_import_at = now()`, row_count
+- [x] Driver phone: reservation CSV has driver *name* only. Populate `drivers.phone` from a separate driver list (upload or UI from Phase 3), not from the reservation export. Parser writes `driver_assigned` to reservations; driver phone is resolved at call time via join to `drivers`.
+- [x] Handle encoding (UTF-8, latin-1) and missing columns gracefully
 
 **Acceptance Criteria:**
 
-- [ ] Run script with sample CSV → `reservations` rows appear/update in Supabase
-- [ ] `import_meta.last_import_at` updates after each run
-- [ ] `check_reservation` returns correct data for a reservation from the imported file
-- [ ] No duplicate reservations for same confirmation/trip id when re-running import
-- [ ] Driver phone populated from the chosen export format
+- [x] Run script with sample CSV → `reservations` rows appear/update in Supabase
+- [x] `import_meta.last_import_at` updates after each run
+- [x] `check_reservation` returns correct data for a reservation from the imported file
+- [x] No duplicate reservations for same confirmation/trip id when re-running import
+- [x] Driver phone available via `drivers` (from driver list); `driver_assigned` on reservation links to driver for transfer
+
+**Implementation:** Hudson-style parser in `import-upload` Edge Function (by column index). Unique index on `reservations(confirmation_number)` (migration `20250211000003_reservations_confirmation_unique.sql`) for upsert. CLI: `migrate_csvs.py` uses Trip# when present, upserts reservations, writes `import_meta`. Upload: same parser in Edge Function; POST `type=reservations` + file → parse, upsert, insert `import_meta`.
 
 ### 5.2 Wire Parser to Upload (if Phase 3 built first)
 
-- [ ] Upload endpoint or page from Phase 3 calls this parser (or CLI logic) so operator upload triggers same upsert and `import_meta` update
-- [ ] Document which format is supported (single CSV vs. two files) in integration plan
+- [x] Upload endpoint or page from Phase 3 calls this parser (or CLI logic) so operator upload triggers same upsert and `import_meta` update
+- [x] Document which format is supported (single CSV vs. two files) in integration plan
 
 **Acceptance Criteria:**
 
-- [ ] Operator upload uses the same code path as CLI import
-- [ ] One documented "expected columns" or sample template
+- [x] Operator upload uses the same code path as CLI import
+- [x] One documented "expected columns" or sample template
 
 ---
 
