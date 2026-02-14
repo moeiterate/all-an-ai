@@ -114,7 +114,7 @@ Operators configure their company name, welcome message, business hours, and tra
 
 ### 2.1 Agent Settings Component
 
-- [ ] New component: `AgentSettings.tsx`
+- [x] New component: `AgentSettings.tsx`
   - Loads `tenant_config` for current user (upsert on first save if row doesn't exist)
   - **Section 1 — Company Info:**
     - Company name (text, required)
@@ -140,18 +140,18 @@ Operators configure their company name, welcome message, business hours, and tra
 
 ### 2.2 Add Tab to Dashboard
 
-- [ ] Add `"settings"` tab to `Dashboard.tsx` tab bar
-- [ ] Render `AgentSettings` when selected
-- [ ] Tab label: "Agent Settings"
-- [ ] Position it as the last tab (after Import Status) — operators configure once, use rarely
+- [x] Add `"settings"` tab to `Dashboard.tsx` tab bar
+- [x] Render `AgentSettings` when selected
+- [x] Tab label: "Agent Settings"
+- [x] Position it as the last tab (after Import Status) — operators configure once, use rarely
 
 **Acceptance Criteria:**
 
-- [ ] Operator can edit and save: company name, operator name, operator phone, operator email, timezone, welcome message, after-hours message, business hours, transfer toggle, forwarding mode, office phone
-- [ ] Values persist across page reloads
-- [ ] New user sees empty form with sensible placeholders; first save creates the row
-- [ ] Forwarding mode explanation is clear (operator understands "after hours" means calls go to their office during the day)
-- [ ] No impact on existing reservation/driver functionality
+- [x] Operator can edit and save: company name, operator name, operator phone, operator email, timezone, welcome message, after-hours message, business hours, transfer toggle, forwarding mode, office phone
+- [x] Values persist across page reloads
+- [x] New user sees empty form with sensible placeholders; first save creates the row
+- [x] Forwarding mode explanation is clear (operator understands "after hours" means calls go to their office during the day)
+- [x] No impact on existing reservation/driver functionality
 
 ---
 
